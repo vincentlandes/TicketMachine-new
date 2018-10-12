@@ -18,72 +18,14 @@ namespace Lab3
 		ComboBox payment;
 		Button pay;
 
-		public UI ()
+        public UI()
 		{
 			initializeControls ();
 		}
 
 		private void handlePayment(UIInfo info)
-		{
-			// *************************************
-			// This is the code you need to refactor
-			// *************************************
-
-			// Get number of tariefeenheden
-			int tariefeenheden = Tariefeenheden.getTariefeenheden (info.From, info.To);
-
-			// Compute the column in the table based on choices
-			int tableColumn;
-			// First based on class
-			switch (info.Class) {
-			case UIClass.FirstClass:
-				tableColumn = 3;
-				break;
-			default:
-				tableColumn = 0;
-				break;
-			}
-			// Then, on the discount
-			switch (info.Discount) {
-			case UIDiscount.TwentyDiscount:
-				tableColumn += 1;
-				break;
-			case UIDiscount.FortyDiscount:
-				tableColumn += 2;
-				break;
-			}
-
-			// Get price
-			float price = PricingTable.getPrice (tariefeenheden, tableColumn);
-			if (info.Way == UIWay.Return) {
-				price *= 2;
-			}
-			// Add 50 cent if paying with credit card
-			if (info.Payment == UIPayment.CreditCard) {
-				price += 0.50f;
-			}
-
-			// Pay
-			switch (info.Payment) {
-			case UIPayment.CreditCard:
-				CreditCard c = new CreditCard ();
-				c.Connect ();
-				int ccid = c.BeginTransaction (price);
-				c.EndTransaction (ccid);
-				break;
-			case UIPayment.DebitCard:
-				DebitCard d = new DebitCard ();
-				d.Connect ();
-				int dcid = d.BeginTransaction (price);
-				d.EndTransaction (dcid);
-				break;
-			case UIPayment.Cash:
-				IKEAMyntAtare2000 coin = new IKEAMyntAtare2000 ();
-				coin.starta ();
-				coin.betala ((int) Math.Round(price * 100));
-				coin.stoppa ();
-				break;
-			}
+		{			
+			Controller.startTransaction(info);
 		}
 
 #region Set-up -- don't look at it
@@ -111,24 +53,24 @@ namespace Lab3
 				grid.ColumnStyles.Add (c);
 			}
 			// Create From and To
-			var fromLabel = new Label ();
+			var fromLabel = new Label();
 			fromLabel.Text = "From:";
 			fromLabel.TextAlign = ContentAlignment.MiddleRight;
 			grid.Controls.Add (fromLabel, 0, 0);
 			fromLabel.Dock = DockStyle.Fill;
-			fromBox = new ComboBox ();
+			fromBox = new ComboBox();
 			fromBox.DropDownStyle = ComboBoxStyle.DropDownList;
 			fromBox.Items.AddRange (Tariefeenheden.getStations ());
 			fromBox.SelectedIndex = 0;
 			grid.Controls.Add (fromBox, 1, 0);
 			grid.SetColumnSpan (fromBox, 2);
 			fromBox.Dock = DockStyle.Fill;
-			var toLabel = new Label ();
+			var toLabel = new Label();
 			toLabel.Text = "To:";
 			toLabel.TextAlign = ContentAlignment.MiddleRight;
 			grid.Controls.Add (toLabel, 3, 0);
 			toLabel.Dock = DockStyle.Fill;
-			toBox = new ComboBox ();
+			toBox = new ComboBox();
 			toBox.DropDownStyle = ComboBoxStyle.DropDownList;
 			toBox.Items.AddRange (Tariefeenheden.getStations ());
 			toBox.SelectedIndex = 0;
@@ -136,7 +78,7 @@ namespace Lab3
 			grid.SetColumnSpan (toBox, 2);
 			toBox.Dock = DockStyle.Fill;
 			// Create groups
-			GroupBox classGroup = new GroupBox ();
+			GroupBox classGroup = new GroupBox();
 			classGroup.Text = "Class";
 			classGroup.Dock = DockStyle.Fill;
 			grid.Controls.Add (classGroup, 0, 1);
@@ -146,7 +88,7 @@ namespace Lab3
 			classGrid.RowStyles.Add (new RowStyle (SizeType.Percent, 50));
 			classGrid.Dock = DockStyle.Fill;
 			classGroup.Controls.Add (classGrid);
-			GroupBox wayGroup = new GroupBox ();
+			GroupBox wayGroup = new GroupBox();
 			wayGroup.Text = "Amount";
 			wayGroup.Dock = DockStyle.Fill;
 			grid.Controls.Add (wayGroup, 2, 1);
@@ -156,7 +98,7 @@ namespace Lab3
 			wayGrid.RowStyles.Add (new RowStyle (SizeType.Percent, 50));
 			wayGrid.Dock = DockStyle.Fill;
 			wayGroup.Controls.Add (wayGrid);
-			GroupBox discountGroup = new GroupBox ();
+			GroupBox discountGroup = new GroupBox();
 			discountGroup.Text = "Discount";
 			discountGroup.Dock = DockStyle.Fill;
 			grid.Controls.Add (discountGroup, 4, 1);
@@ -168,37 +110,37 @@ namespace Lab3
 			discountGrid.Dock = DockStyle.Fill;
 			discountGroup.Controls.Add (discountGrid);
 			// Create radio buttons
-			firstClass = new RadioButton ();
+			firstClass = new RadioButton();
 			firstClass.Text = "1st class";
 			firstClass.Checked = true;
 			classGrid.Controls.Add (firstClass);
-			secondClass = new RadioButton ();
+			secondClass = new RadioButton();
 			secondClass.Text = "2nd class";
 			classGrid.Controls.Add (secondClass);
-			oneWay = new RadioButton ();
+			oneWay = new RadioButton();
 			oneWay.Text = "One-way";
 			oneWay.Checked = true;
 			wayGrid.Controls.Add (oneWay);
-			returnWay = new RadioButton ();
+			returnWay = new RadioButton();
 			returnWay.Text = "Return";
 			wayGrid.Controls.Add (returnWay);
-			noDiscount = new RadioButton ();
+			noDiscount = new RadioButton();
 			noDiscount.Text = "No discount";
 			noDiscount.Checked = true;
 			discountGrid.Controls.Add (noDiscount);
-			twentyDiscount = new RadioButton ();
+			twentyDiscount = new RadioButton();
 			twentyDiscount.Text = "20% discount";
 			discountGrid.Controls.Add (twentyDiscount);
-			fortyDiscount = new RadioButton ();
+			fortyDiscount = new RadioButton();
 			fortyDiscount.Text = "40% discount";
 			discountGrid.Controls.Add (fortyDiscount);
 			// Payment option
-			Label paymentLabel = new Label ();
+			Label paymentLabel = new Label();
 			paymentLabel.Text = "Payment by:";
 			paymentLabel.Dock = DockStyle.Fill;
 			paymentLabel.TextAlign = ContentAlignment.MiddleRight;
 			grid.Controls.Add (paymentLabel, 0, 2);
-			payment = new ComboBox ();
+			payment = new ComboBox();
 			payment.DropDownStyle = ComboBoxStyle.DropDownList;
 			payment.Items.AddRange (new String[] { "Credit card", "Debit card", "Cash" });
 			payment.SelectedIndex = 0;
@@ -206,7 +148,7 @@ namespace Lab3
 			grid.Controls.Add (payment, 1, 2);
 			grid.SetColumnSpan (payment, 5);
 			// Pay button
-			pay = new Button ();
+			pay = new Button();
 			pay.Text = "Pay";
 			pay.Dock = DockStyle.Fill;
 			grid.Controls.Add (pay, 0, 3);
